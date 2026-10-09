@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VEYA</title>
+  <meta name="description" content="VEYA: clubs, chats, events and campus map for IIT Mandi." />
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <link rel="apple-touch-icon" href="img/logo-192.png" />
+  <meta name="theme-color" content="#120c22" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    // apply saved theme before paint (no flash)
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('kc-theme'); } catch (e) {}
+      var legacy = { light: 'morning', dark: 'night' };
+      t = legacy[t] || t;
+      if (!t) t = matchMedia('(prefers-color-scheme: light)').matches ? 'veyaday' : 'veya';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <!-- Kamand valley scene, reused in the sign-in screen and the sidebar banner -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="pine" viewBox="-2 0 24 34"><path d="M10 0 L18 14 H14 L21 26 H12 V34 H8 V26 H-1 L6 14 H2Z" /></symbol>
+      <symbol id="valley" viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice">
+        <g class="stars">
+          <circle cx="90" cy="40" r="1.6"/><circle cx="210" cy="80" r="1.2"/><circle cx="330" cy="30" r="1.8"/>
+          <circle cx="470" cy="70" r="1.1"/><circle cx="600" cy="25" r="1.5"/><circle cx="690" cy="95" r="1"/>
+          <circle cx="860" cy="45" r="1.7"/><circle cx="960" cy="85" r="1.2"/><circle cx="1010" cy="20" r="1.4"/>
+          <circle cx="1240" cy="40" r="1.3"/><circle cx="1330" cy="75" r="1.7"/><circle cx="1400" cy="28" r="1.1"/>
+          <circle cx="40" cy="110" r="1"/><circle cx="540" cy="120" r="1.2"/><circle cx="1180" cy="130" r="1"/>
+        </g>
+        <circle class="orb" cx="1110" cy="88" r="34" />
+        <path class="far" d="M0 220 L120 150 L200 190 L320 90 L420 170 L520 120 L640 200 L760 80 L880 170 L980 110 L1100 190 L1220 100 L1340 170 L1440 130 V320 H0Z" />
+        <path class="snow" d="M320 90 L294 112 L307 106 L319 117 L333 105 L347 112Z" />
+        <path class="snow" d="M760 80 L735 105 L748 99 L760 108 L772 98 L793 105Z" />
+        <path class="snow" d="M1220 100 L1191 122 L1205 116 L1218 126 L1234 115 L1257 122Z" />
+        <path class="snow" d="M520 120 L505 132 L514 129 L522 135 L530 128 L540 132Z" />
+        <path class="mid" d="M0 250 C150 200 260 230 380 205 C500 180 600 240 740 215 C880 190 1000 235 1140 210 C1260 190 1360 225 1440 205 V320 H0Z" />
+        <!-- campus blocks on the ridge -->
+        <g class="campus">
+          <rect class="bldg" x="842" y="186" width="34" height="22" rx="2" /><rect class="bldg" x="880" y="178" width="26" height="30" rx="2" />
+          <rect class="bldg" x="910" y="190" width="40" height="18" rx="2" /><rect class="bldg" x="954" y="182" width="22" height="26" rx="2" />
+          <rect class="win" x="848" y="192" width="4" height="4" /><rect class="win" x="858" y="192" width="4" height="4" /><rect class="win" x="886" y="186" width="4" height="4" />
+          <rect class="win" x="896" y="194" width="4" height="4" /><rect class="win" x="918" y="196" width="4" height="4" /><rect class="win" x="930" y="196" width="4" height="4" />
+          <rect class="win" x="960" y="190" width="4" height="4" /><rect class="win" x="940" y="196" width="4" height="4" />
+        </g>
+        <path class="near" d="M0 285 C200 255 330 280 520 262 C700 246 860 285 1060 265 C1240 248 1340 270 1440 258 V320 H0Z" />
+        <path class="river" d="M380 320 C480 304 610 300 720 292 C830 284 920 290 1040 280 C1150 271 1260 282 1440 276" />
+        <g class="pines">
+          <use href="#pine" x="40" y="240" width="22" height="36" /><use href="#pine" x="70" y="250" width="16" height="28" />
+          <use href="#pine" x="180" y="248" width="20" height="32" /><use href="#pine" x="300" y="244" width="24" height="38" />
+          <use href="#pine" x="330" y="256" width="16" height="26" /><use href="#pine" x="610" y="236" width="20" height="34" />
+          <use href="#pine" x="1180" y="232" width="22" height="36" /><use href="#pine" x="1210" y="244" width="16" height="26" />
+          <use href="#pine" x="1330" y="236" width="20" height="32" /><use href="#pine" x="1390" y="228" width="24" height="38" />
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ====================== AUTH ====================== -->
+  <section id="auth" class="auth" hidden>
+    <svg class="auth-scene" aria-hidden="true"><use href="#valley" /></svg>
+    <button class="theme-toggle floating" type="button" title="Change theme" data-theme-picker>🎨</button>
+    <div class="auth-hero">
+      <img class="hero-logo" src="img/logo.png" alt="VEYA logo" />
+      <p class="eyebrow">IIT Mandi · Kamand valley</p>
+      <h1>Welcome to <span class="veya-word">VEYA</span></h1>
+      <p class="hero-sub">Every club, every chat, every event: one place for campus life.</p>
+      <ul class="hero-points">
+        <li>💬 Real-time chats for SnTC, Cult Soc, Sports & more</li>
+        <li>🧩 Join clubs and never miss an update</li>
+        <li>🗓️ Schedule Planner that warns you about clashes</li>
+        <li>🗺️ Find any block, mess or canteen on the campus map</li>
+      </ul>
+    </div>
+    <div class="auth-card">
+      <div class="brand">
+        <img class="brand-logo" src="img/logo-192.png" alt="" />
+        <div>
+          <h2>VEYA</h2>
+          <p>Sign in or create your account</p>
+        </div>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" class="tab active" data-tab="signin" type="button">Sign in</button>
+        <button role="tab" class="tab" data-tab="signup" type="button">Create account</button>
+      </div>
+
+      <form id="signin-form" class="auth-form" novalidate>
+        <label>Username or email<input name="login" autocomplete="username" required /></label>
+        <label>Password
+          <div class="pw-wrap"><input name="password" type="password" autocomplete="current-password" required /><button type="button" class="pw-eye" aria-label="Show password">Show</button></div>
+        </label>
+        <p class="form-error" role="alert"></p>
+        <button class="btn primary block" type="submit">Sign in</button>
+        <p class="switch-hint">New to campus? <a href="#" data-goto="signup">Create an account</a></p>
+      </form>
+
+      <form id="signup-form" class="auth-form" hidden novalidate>
+        <div class="row2">
+          <label>Full name<input name="name" autocomplete="name" maxlength="40" required /></label>
+          <label>Username<input name="username" autocomplete="username" maxlength="20" placeholder="e.g. b23cs042" required /></label>
+        </div>
+        <label>Email<input name="email" type="email" autocomplete="email" required /><small class="hint" id="email-hint"></small></label>
+        <label>Password
+          <div class="pw-wrap"><input name="password" type="password" autocomplete="new-password" required /><button type="button" class="pw-eye" aria-label="Show password">Show</button></div>
+        </label>
+        <div class="strength"><span></span></div>
+        <ul class="pw-rules" id="pw-rules"></ul>
+        <label>Confirm password<input name="confirm" type="password" autocomplete="new-password" required /></label>
+        <p class="form-error" role="alert"></p>
+        <button class="btn primary block" type="submit">Create account</button>
+        <p class="switch-hint">Already have one? <a href="#" data-goto="signin">Sign in</a></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ====================== APP ====================== -->
+  <div id="app" class="app" hidden>
+    <nav class="rail" id="rail" aria-label="Main"></nav>
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="scrim" id="scrim"></div>
+    <main class="main" id="main"></main>
+  </div>
+
+  <!-- shown once right after sign in / sign up -->
+  <div id="welcome" class="welcome" hidden></div>
+
+  <div id="modal-root"></div>
+  <div id="toasts" aria-live="polite"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="vendor/qrcode/qrcode.js"></script>
+  <script src="emoji.js"></script>
+  <script src="stickers.js"></script>
+  <script src="campus.js"></script>
+  <script src="gcs.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
